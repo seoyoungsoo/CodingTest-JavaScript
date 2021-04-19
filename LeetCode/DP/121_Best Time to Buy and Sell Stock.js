@@ -2,6 +2,7 @@
 
 const maxProfit = (prices) => {
   let min = 10 ** 5 + 1, profit = 0;
+  // min 값을 NUMBER.MAX_SAFE_INTEGER로 설정하면 런타임 속도가 훨씬 빨라진다.
 
   for (let i = 0; i < prices.length - 1; i++) {
     min = Math.min(prices[i], min);
