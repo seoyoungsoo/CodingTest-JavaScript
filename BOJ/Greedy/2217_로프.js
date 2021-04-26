@@ -27,4 +27,4 @@ rl.on('line', (line) => {
   console.log(maxW);
 
   process.exit();
-})
+});
