@@ -1,6 +1,6 @@
 // 2293번 동전 1
 // node의 경우 메모리 초과 발생
-// python으로 제출 완료ㄴs
+// python으로 제출 완료
 
 const fs = require('fs');
 const { parse } = require('path');
