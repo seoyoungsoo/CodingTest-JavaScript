@@ -1,12 +1,10 @@
 // 14502번 연구소
-// 풀지 못한 문제
 
 const fs = require('fs');
-const { parse } = require('path');
-const stdin = (
-  process.platform === 'linux'
-    ? fs.readFileSync('/dev/stdin').toString()
-    : `4 6
+const { exit } = require('process');
+const stdin = (process.platform === 'linux'
+? fs.readFileSync('/dev/stdin').toString()
+: `4 6
 0 0 0 0 0 0
 1 0 0 0 0 2
 1 1 1 0 0 2
@@ -14,31 +12,13 @@ const stdin = (
 ).split('\n');
 
 const input = (() => {
-  let line = 0;
-  return () => stdin[line++];
+    let line = 0;
+    return () => stdin[line++];
 })();
 
-const dxy = [
-  [0, 1],
-  [0, -1],
-  [1, 0],
-  [-1, 0],
-];
-let res = 0;
-let emptyList = [],
-  virusList = [];
-const EMPTY = 0,
-  WALL = 1,
-  VIRUS = 2;
-
-const [n, m] = input()
-  .split(' ')
-  .map((e) => parseInt(e));
-const graph = Array.from({ length: n }, () => Array(m).fill(0));
-
-const BFS = (newGraph) => {
-  let q = [];
-  let visited = Array.from({ length: n }, () => Array(m).fill(false));
+const bfs = (g) => {
+  const q = [];
+  const visited = Array.from({length: N}, () => Array(M).fill(0));
   let cnt = 0;
 
   for (let virus of virusList) {
@@ -46,58 +26,56 @@ const BFS = (newGraph) => {
   }
 
   while (q.length) {
-    let [x, y] = q.shift();
-    for (let i = 0; i < 4; i++) {
-      let nx = x + dxy[i][0];
-      let ny = y + dxy[i][1];
+    const [x, y] = q.shift();
+    for (let [dx, dy] of dxy) {
+      const nx = dx + x;
+      const ny = dy + y;
 
-      if (0 <= nx && nx < n && 0 <= ny && ny < m) {
-        if (newGraph[nx][ny] === EMPTY && visited[nx][ny] === false) {
+      if (0 <= nx && nx < N && 0 <= ny && ny < M) {
+        if (g[nx][ny] === EMPTY && visited[nx][ny] === 0) {
           q.push([nx, ny]);
-          newGraph[nx][ny] = VIRUS;
-          visited[nx][ny] = true;
+          g[nx][ny] = VIRUS;
+          visited[nx][ny] = 1;
         }
       }
     }
   }
-  for (let i = 0; i < n; i++) {
-    cnt = newGraph[i].filter((e) => e === EMPTY).length;
+
+  for (let i = 0; i < g.length; i++) {
+    cnt += g[i].filter(e => e === EMPTY).length;
   }
 
-  if (res < cnt) {
-    res = cnt;
-  }
-};
+  if (res < cnt) res = cnt;
+}
 
-for (let x = 0; x < n; x++) {
-  let raw = input()
-    .split(' ')
-    .map((e) => parseInt(e));
+const EMPTY = 0, WALL = 1, VIRUS = 2;
+const [N, M] = input().split(' ').map(e => parseInt(e));
+const graph = Array.from({length: N}, () => input().split(' ').map(e => parseInt(e)));
+const dxy = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+const emptyList = [], virusList = [];
+let res = 0;
 
-  for (let y = 0; y < m; y++) {
-    graph[x][y] = raw[y];
-    if (graph[x][y] === EMPTY) emptyList.push([x, y]);
-    if (graph[x][y] === VIRUS) virusList.push([x, y]);
+for (let i = 0; i < N; i++) {
+  for (let j = 0; j < M; j++) {
+    if (graph[i][j] === EMPTY) emptyList.push([i, j]);
+    if (graph[i][j] === VIRUS) virusList.push([i, j]);
   }
 }
 
 for (let i = 0; i < emptyList.length; i++) {
   for (let j = 0; j < i; j++) {
     for (let k = 0; k < j; k++) {
-      const [x1, y1] = emptyList[i];
-      const [x2, y2] = emptyList[j];
-      const [x3, y3] = emptyList[k];
+      const [x1, y1] = emptyList[i]
+      const [x2, y2] = emptyList[j]
+      const [x3, y3] = emptyList[k]
 
-      graph[x1][y1] = WALL;
-      graph[x2][y2] = WALL;
-      graph[x3][y3] = WALL;
+      const newGraph = graph.map(v => v.slice());
 
-      let newGraph = JSON.parse(JSON.stringify(graph));
-      BFS(newGraph);
+      newGraph[x1][y1] = WALL;
+      newGraph[x2][y2] = WALL;
+      newGraph[x3][y3] = WALL;
 
-      graph[x1][y1] = EMPTY;
-      graph[x2][y2] = EMPTY;
-      graph[x3][y3] = EMPTY;
+      bfs(newGraph);
     }
   }
 }
